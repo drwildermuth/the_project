@@ -1,10 +1,119 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>The Project Simulation</title>
-  </head>
-  <body>
-    <h1>Coming soon...</h1>
-    <p>The interactive simulation will be available here.</p>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>The Project</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 40px;
+      text-align: center;
+    }
+    #story {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      background: #0057b7;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #003f8a;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="story">
+  <h1>The Project</h1>
+  <p id="text">It’s week 4 of your 7-week online class. You’ve been working on a team project since week 1. Today, your professor proposes replacing the project with an open-book final exam. Some classmates seem relieved. One smiles in the camera. No one objects. You have to decide quickly what to do.</p>
+  <div id="choices"></div>
+  <p id="tokens"></p>
+</div>
+
+<script>
+let tokens = 2;
+let state = "start";
+let history = [];
+
+const storyText = document.getElementById("text");
+const choicesDiv = document.getElementById("choices");
+const tokensDisplay = document.getElementById("tokens");
+
+function updateTokensDisplay() {
+  tokensDisplay.textContent = `🪙 Leadership tokens left: ${tokens}`;
+}
+
+function showChoices(options) {
+  choicesDiv.innerHTML = "";
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.textContent = opt.text;
+    btn.onclick = () => {
+      if (opt.cost > tokens) {
+        alert("You don't have enough tokens for that choice.");
+        return;
+      }
+      if (opt.cost > 0) tokens -= opt.cost;
+      updateTokensDisplay();
+      history.push(opt.id);
+      render(opt.next);
+    };
+    choicesDiv.appendChild(btn);
+  });
+}
+
+function render(id) {
+  state = id;
+  if (id === "start") {
+    storyText.textContent = `It’s week 4 of your 7-week online class. You’ve been working on a team project since week 1. Today, your professor proposes replacing the project with an open-book final exam. Some classmates seem relieved. One smiles in the camera. No one objects. You have to decide quickly what to do.`;
+    showChoices([
+      { text: "Nod and say nothing", id: "r1_nod", next: "round2", cost: 0 },
+      { text: "Privately message a friend", id: "r1_msg", next: "round2", cost: 0 },
+      { text: "Speak up and ask for clarification", id: "r1_speak", next: "round2", cost: 1 }
+    ]);
+  }
+  else if (id === "round2") {
+    storyText.textContent = `The professor confirms the change unless someone objects. One student posts “Thanks, this helps!” You wonder whether you should accept the change or say something more.`;
+    showChoices([
+      { text: "Say nothing again", id: "r2_silent", next: "round3", cost: 0 },
+      { text: "Ask if the exam could be taken in teams", id: "r2_ask_team", next: "round3", cost: 1 },
+      { text: "Say you're worried about losing your team’s progress", id: "r2_pushback", next: "round3", cost: 1 }
+    ]);
+  }
+  else if (id === "round3") {
+    storyText.textContent = `Later, you find out that multiple classmates had been hoping to keep the project but assumed others wanted the exam. Your professor was unsure too but didn’t want to push back if students seemed fine.`;
+    showChoices([
+      { text: "Reflect on what happened", id: "ending_reflect", next: "end" , cost: 0},
+      { text: "Vow to speak up more often", id: "ending_vow", next: "end" , cost: 0},
+      { text: "Message your team and suggest emailing the professor together", id: "ending_team", next: "end" , cost: 1}
+    ]);
+  }
+  else if (id === "end") {
+    storyText.innerHTML = `<strong>The simulation ends here.</strong><br><br>Did you use your leadership tokens? Did you speak up when it mattered? What assumptions were you making about others?<br><br><em>In your class discussion board or meeting, reflect on your experience. Then watch this video: <a href="https://www.youtube.com/watch?v=xp67BGPPZa4" target="_blank">https://www.youtube.com/watch?v=xp67BGPPZa4</a> and consider how this connects to what you just experienced.</em>`;
+    choicesDiv.innerHTML = "";
+    tokensDisplay.textContent = `Final leadership tokens remaining: ${tokens}`;
+  }
+}
+
+updateTokensDisplay();
+render("start");
+</script>
+
+</body>
 </html>
